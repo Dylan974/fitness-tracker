@@ -6,10 +6,10 @@
         <mat-icon>home</mat-icon>
     </button></div>
     <div fxFlex fxLayout fxLayoutAlign="flex-end" fxHide.xs>
-        <button mat-button routerLink="/signup">Signup</button>
-        <button mat-button routerLink="/login">Login</button>
-        <button mat-button routerLink="/training">Training</button>
-        <button mat-button>Logout</button>
+        <button *ngIf="!isAuth" mat-button routerLink="/signup">Signup</button>
+        <button *ngIf="!isAuth" mat-button routerLink="/login">Login</button>
+        <button *ngIf="isAuth" mat-button routerLink="/training">Training</button>
+        <button *ngIf="isAuth" mat-button (click)="onLogout()">Logout</button>
 
     </div>
 </mat-toolbar>
