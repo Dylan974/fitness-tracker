@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { Exercise } from '../exercise.model';
 import { TrainingService } from '../training.service';
+import { UiService } from '../../shared/ui.service';
 
 @Component({
   selector: 'app-past-training',
@@ -13,14 +14,19 @@ import { TrainingService } from '../training.service';
 export class PastTrainingComponent implements OnInit, AfterViewInit, OnDestroy {
   displayedColumns = ['date', 'name', 'calories', 'duration', 'state'];
   dataSource = new MatTableDataSource<Exercise>();
+  isLoading = false;
   private exChangedSubscription: Subscription;
+  private loadingSubs: Subscription;
 
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
-  constructor(private trainingService: TrainingService) { }
+  constructor(private trainingService: TrainingService, private uiService: UiService) { }
 
   ngOnInit() {
+    this.loadingSubs = this.uiService.loadingStateChanged.subscribe(isLoading => {
+      this.isLoading = isLoading;
+    });
     this.exChangedSubscription = this.trainingService.finishedExercisesChanged.subscribe((exercises: Exercise[]) => {
       this.dataSource.data = exercises;
     });
@@ -33,7 +39,12 @@ export class PastTrainingComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.exChangedSubscription.unsubscribe();
+    if (this.loadingSubs) {
+      this.loadingSubs.unsubscribe();
+    }
+    if (this.exChangedSubscription) {
+      this.exChangedSubscription.unsubscribe();
+    }
   }
 
   doFilter(filterValue: string) {
